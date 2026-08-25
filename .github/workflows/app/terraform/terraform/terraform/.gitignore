@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.DS_Store
+.vscode/
+.idea/
