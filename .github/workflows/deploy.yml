@@ -1,0 +1,44 @@
+name: Deploy eKYC Serverless Platform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    name: Build, Lint & Terraform Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt flake8 pytest
+
+      - name: Code Quality Audit
+        run: |
+          flake8 app/ --max-line-length=120
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Format & Init
+        run: |
+          cd terraform
+          terraform fmt -check
+          terraform init -backend=false
+
+      - name: Build Docker Container
+        run: |
+          docker build -t ekyc-api-service:${{ github.sha }} .
